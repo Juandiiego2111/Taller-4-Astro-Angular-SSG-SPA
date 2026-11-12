@@ -1,0 +1,140 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  SITE_URL: https://juandiiego2111.github.io/Taller-4-Astro-Angular-SSG-SPA
+  CLIENT_BASE_HREF: /Taller-4-Astro-Angular-SSG-SPA/client/
+
+jobs:
+  build:
+    name: Test and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            Astro-SSG/package-lock.json
+            Client-Angular/package-lock.json
+
+      - name: Install Astro dependencies
+        working-directory: Astro-SSG
+        run: npm ci
+
+      - name: Build Astro site
+        working-directory: Astro-SSG
+        run: npm run build
+
+      - name: Install Angular dependencies
+        working-directory: Client-Angular
+        run: npm ci
+
+      - name: Run Angular unit tests
+        working-directory: Client-Angular
+        run: npm test -- --ci
+
+      - name: Build Angular client for GitHub Pages
+        working-directory: Client-Angular
+        run: npx ng build --configuration ghpages --base-href ${{ env.CLIENT_BASE_HREF }}
+
+      - name: Copy Angular build into Astro output
+        run: |
+          set -euo pipefail
+          mkdir -p Astro-SSG/dist/client
+          cp -R Client-Angular/dist/ghpages/browser/. Astro-SSG/dist/client/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: Astro-SSG/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  verify:
+    name: Verify deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Astro and Angular deployments
+        env:
+          DEPLOYED_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+
+          ROOT_URL="${DEPLOYED_URL:-${SITE_URL}}"
+          ROOT_URL="${ROOT_URL%/}/"
+          CLIENT_URL="${ROOT_URL}client/"
+
+          check_url() {
+            local url="$1"
+            local expected_text="$2"
+            local output_file="$3"
+            local status="000"
+
+            for attempt in 1 2 3 4 5; do
+              status=$(curl --silent --show-error --location \
+                --max-time 20 \
+                --output "$output_file" \
+                --write-out "%{http_code}" \
+                "$url") || status="000"
+
+              echo "Intento $attempt/5 → $url → HTTP $status"
+
+              if [ "$status" = "200" ] && grep -q "$expected_text" "$output_file"; then
+                echo "✅ $url respondió 200 y contiene «$expected_text»."
+                return 0
+              fi
+
+              if [ "$attempt" -lt 5 ]; then
+                echo "El sitio aún no está disponible o falta el contenido esperado. Reintentando en 10 segundos..."
+                sleep 10
+              fi
+            done
+
+            echo "::error::La verificación de $url falló (HTTP $status o texto esperado ausente)."
+            head -n 40 "$output_file" || true
+            return 1
+          }
+
+          if ! check_url "$ROOT_URL" "Astro SSG" root.html; then
+            exit 1
+          fi
+
+          if ! check_url "$CLIENT_URL" "Angular Client" client.html; then
+            exit 1
+          fi
+
+          echo "✅ Despliegue verificado: Astro en la raíz y Angular en /client/."
