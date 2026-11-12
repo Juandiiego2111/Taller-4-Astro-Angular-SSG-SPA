@@ -4,8 +4,8 @@
  * @remarks
  * Este archivo contiene las constantes de entorno utilizadas
  * en la aplicación Angular. Se reemplaza automáticamente
- * según el entorno (development, production, etc.) durante
- * el proceso de build.
+ * según el entorno (development, production, ghpages, etc.)
+ * durante el proceso de build.
  *
  * @example
  * ```ts
@@ -27,5 +27,24 @@ export const environment = {
    * `${environment.baseUrl}/users`
    * ```
    */
-  baseUrl: 'http://localhost:3000'
+  baseUrl: 'http://localhost:3000',
+
+  /**
+   * Indica si los servicios deben usar el almacén de datos de ejemplo
+   * en memoria en lugar de la fuente de datos local por defecto.
+   *
+   * @default false
+   */
+  useMockData: false,
+
+  /**
+   * Indica si el router debe usar `HashLocationStrategy`.
+   *
+   * @remarks
+   * Se activa únicamente en la configuración de GitHub Pages para que
+   * las rutas funcionen sin reescrituras del servidor.
+   *
+   * @default false
+   */
+  useHashLocation: false,
 };

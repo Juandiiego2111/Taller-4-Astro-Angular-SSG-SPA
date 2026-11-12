@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Order } from '../../interfaces/orders.interface';
 import { ORDERS } from '../../data/orders.interface';
+import { MockDataService } from '../../mock-data/mock-data.service';
 
 /**
  * Servicio encargado de la gestión de pedidos.
@@ -22,6 +24,8 @@ import { ORDERS } from '../../data/orders.interface';
   providedIn: 'root',
 })
 export class OrdersService {
+  constructor(private readonly mockData: MockDataService) {}
+
   /**
    * Obtiene una lista de pedidos desde la data local.
    *
@@ -35,6 +39,7 @@ export class OrdersService {
    * ```
    */
   getAllOrders(): Observable<Order[]> {
-    return of(ORDERS);
+    const orders = environment.useMockData ? this.mockData.getOrders() : ORDERS;
+    return of(orders);
   }
 }

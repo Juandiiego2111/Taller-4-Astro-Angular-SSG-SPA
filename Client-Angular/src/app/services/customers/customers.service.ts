@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Customer } from '../../interfaces/customers.interface';
 import { CUSTOMERS } from '../../data/customers.interface';
+import { MockDataService } from '../../mock-data/mock-data.service';
 
 /**
  * Servicio encargado de la gestión de clientes.
@@ -22,6 +24,8 @@ import { CUSTOMERS } from '../../data/customers.interface';
   providedIn: 'root',
 })
 export class CustomersService {
+  constructor(private readonly mockData: MockDataService) {}
+
   /**
    * Obtiene una lista de clientes desde la data local.
    *
@@ -35,6 +39,7 @@ export class CustomersService {
    * ```
    */
   getAllCustomers(): Observable<Customer[]> {
-    return of(CUSTOMERS);
+    const customers = environment.useMockData ? this.mockData.getCustomers() : CUSTOMERS;
+    return of(customers);
   }
 }
