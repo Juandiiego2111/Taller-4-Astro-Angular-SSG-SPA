@@ -1,8 +1,19 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { clientAngularInterceptor } from './interceptors/client-angular.interceptor';
+
+/**
+ * Features opcionales del router.
+ *
+ * @remarks
+ * En GitHub Pages se activa `HashLocationStrategy` para que las rutas
+ * funcionen sin reescrituras del servidor. En local y en el build normal
+ * se conserva el comportamiento original con `PathLocationStrategy`.
+ */
+const routerFeatures = environment.useHashLocation ? [withHashLocation()] : [];
 
 /**
  * Configuración principal de la aplicación Angular.
@@ -59,7 +70,7 @@ export const appConfig: ApplicationConfig = {
      *
      * @see {@link routes}
      */
-    provideRouter(routes),
+    provideRouter(routes, ...routerFeatures),
 
     /**
      * Proveedor del cliente HTTP.
