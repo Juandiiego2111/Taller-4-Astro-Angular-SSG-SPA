@@ -1,5 +1,6 @@
 ---
 import type { NavLink } from '@interfaces/NavBar';
+import { withBase } from '@utils/base';
 
 interface Props {
     navLinks: NavLink[];
@@ -7,15 +8,21 @@ interface Props {
 
 const { navLinks } = Astro.props as Props;
 const { pathname } = Astro.url;
+const normalizedPathname = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
 ---
 
 <ul class="nav nav-pills">
-    {navLinks.map((navLink) => (
-        <li class="nav-item">
-            <a  href={navLink.url}
-                class={`nav-link ${pathname === navLink.url ? "active" : ""}`}>
-                {navLink.text}
-            </a>
-        </li>
-    ))}
+    {navLinks.map((navLink) => {
+        const href = withBase(navLink.url);
+        const isActive = normalizedPathname === href || normalizedPathname === href.replace(/\/$/, '');
+
+        return (
+            <li class="nav-item">
+                <a href={href}
+                   class={`nav-link ${isActive ? "active" : ""}`}>
+                    {navLink.text}
+                </a>
+            </li>
+        );
+    })}
 </ul>

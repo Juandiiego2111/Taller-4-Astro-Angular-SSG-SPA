@@ -17,6 +17,7 @@ const navbarConfig: NavbarConfig = {
       { text: 'Fecha', url: '/current-date' },
       { text: 'Clientes', url: '/customers' },
       { text: 'Pedidos', url: '/orders' },
+      { text: 'Angular Client', url: '/client/' },
     ]
 };
 
@@ -31,7 +32,5 @@ const navbarConfig: NavbarConfig = {
         </h3>
     </div>
 
-    <ul class="nav nav-pills">
-        <NavLink navLinks={navbarConfig.navLinks} />
-    </ul>
+    <NavLink navLinks={navbarConfig.navLinks} />
 </header>

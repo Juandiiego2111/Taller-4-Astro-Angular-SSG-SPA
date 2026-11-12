@@ -1,3 +1,50 @@
 ---
-return Astro.redirect("/users");
+import MainLayout from "@layouts/MainLayout.astro";
+import { withBase } from "@utils/base";
+
+const astroSections = [
+  { text: 'Usuarios', url: '/users', icon: 'people-fill' },
+  { text: 'Productos', url: '/products', icon: 'box-seam-fill' },
+  { text: 'Categorías', url: '/categories', icon: 'tags-fill' },
+  { text: 'Clientes', url: '/customers', icon: 'person-vcard-fill' },
+  { text: 'Pedidos', url: '/orders', icon: 'receipt' },
+  { text: 'Fecha actual', url: '/current-date', icon: 'calendar-event-fill' },
+];
 ---
+
+<MainLayout>
+  <div class="container col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-5 py-5">
+      <div class="col-lg-7">
+        <h1 class="display-5 fw-bold lh-1 mb-3">Astro SSG</h1>
+        <p class="lead">
+          Taller 4: sitio estático generado con Astro y cliente SPA construido con Angular,
+          desplegados juntos en GitHub Pages.
+        </p>
+        <p class="text-body-secondary mb-4">
+          Las tablas de esta aplicación se generan en tiempo de build a partir de datos locales.
+          El cliente Angular se publica en la subruta <code>/client/</code> y usa datos de ejemplo
+          porque GitHub Pages no ejecuta backends.
+        </p>
+        <a class="btn btn-primary btn-lg" href={withBase('/client/')}>
+          Abrir cliente Angular
+        </a>
+      </div>
+
+      <div class="col-lg-5">
+        <h2 class="h4 mb-3">Vistas de Astro</h2>
+        <div class="list-group">
+          {astroSections.map((section) => (
+            <a
+              class="list-group-item list-group-item-action d-flex align-items-center gap-2"
+              href={withBase(section.url)}
+            >
+              <i class={`bi bi-${section.icon}`} aria-hidden="true"></i>
+              {section.text}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</MainLayout>
