@@ -1,46 +1,40 @@
-# Astro Starter Kit: Basics
+# Astro SSG · Taller 4
 
-```sh
-npm create astro@latest -- --template basics
-```
+Aplicación estática del monorepo, construida con **Astro 5.16.9**. Genera las vistas de usuarios, productos, categorías, clientes, pedidos y fecha actual a partir de datos locales en `src/data/`.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+La documentación completa del taller, el despliegue y la app Angular están en el [README raíz](../README.md).
 
-## 🚀 Project Structure
+## Comandos
 
-Inside of your Astro project, you'll see the following folders and files:
+| Comando | Acción |
+| --- | --- |
+| `npm install` / `npm ci` | Instala las dependencias |
+| `npm run dev` | Inicia el servidor de desarrollo en `http://localhost:4321/Taller-4-Astro-Angular-SSG-SPA/` |
+| `npm run build` | Genera el sitio estático en `./dist/` |
+| `npm run preview` | Previsualiza el build local |
+| `npm run astro ...` | Ejecuta comandos del CLI de Astro |
+
+## Estructura
 
 ```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+src/
+├── assets/
+├── components/shared/   # NavBar, NavLink, Badge e Icon
+├── data/                # Datos locales de cada entidad
+├── interfaces/          # Tipos de TypeScript
+├── layouts/             # MainLayout.astro
+├── pages/               # Rutas del sitio
+├── styles/              # Estilos globales
+└── utils/base.ts        # Helper para respetar import.meta.env.BASE_URL
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Despliegue
 
-## 🧞 Commands
+`astro.config.mjs` define:
 
-All commands are run from the root of the project, from a terminal:
+```js
+site: 'https://juandiiego2111.github.io',
+base: '/Taller-4-Astro-Angular-SSG-SPA',
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Los enlaces internos y las rutas de assets usan `withBase()` para funcionar bajo el subdirectorio de GitHub Pages. El workflow del repositorio copia el build de Angular dentro de `dist/client/` antes de publicar.
